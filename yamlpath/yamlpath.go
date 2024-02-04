@@ -2,12 +2,10 @@
 package yamlpath
 
 import (
-	"context"
 	"slices"
 
 	"github.com/goccy/go-yaml"
 	sitter "github.com/smacker/go-tree-sitter"
-	yaml_language "github.com/smacker/go-tree-sitter/yaml"
 	"github.com/tliron/commonlog"
 	protocol "github.com/tliron/glsp/protocol_3_16"
 
@@ -43,17 +41,10 @@ var relevanNodeTypes = []string{
 	"block_sequence_item",
 }
 
-func GetPath(source []byte, position protocol.Position) (*string, error) {
+func GetPath(tree *sitter.Tree, source []byte, position protocol.Position) *yaml.Path {
 
 	point := sitter.Point{Row: position.Line, Column: position.Character}
 
-	parser := sitter.NewParser()
-	parser.SetLanguage(yaml_language.GetLanguage())
-
-	tree, err := parser.ParseCtx(context.Background(), nil, source)
-	if err != nil {
-		return nil, err
-	}
 	root := tree.RootNode()
 
 	current := root
@@ -96,10 +87,7 @@ func GetPath(source []byte, position protocol.Position) (*string, error) {
 		}
 	}
 
-	path := builder.Build()
-
-	result := path.String()
-	return &result, nil
+	return builder.Build()
 }
 
 func extractBlockMappingPairKey(source []byte, node *sitter.Node) string {

@@ -1,6 +1,7 @@
 package yamlpath_test
 
 import (
+	"gitlab-ci-lsp/tsyaml"
 	"gitlab-ci-lsp/yamlpath"
 
 	"testing"
@@ -38,9 +39,10 @@ func TestGetPath(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := yamlpath.GetPath(tt.source, tt.position)
+			tree, err := tsyaml.GetTree(tt.source)
 			require.NoError(t, err)
-			require.Equal(t, tt.expected, *actual)
+			actual := yamlpath.GetPath(tree, tt.source, tt.position)
+			require.Equal(t, tt.expected, actual.String())
 		})
 	}
 }
